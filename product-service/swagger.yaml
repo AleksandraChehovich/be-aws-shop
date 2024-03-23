@@ -1,0 +1,113 @@
+openapi: 3.0.3
+info:
+  title: Product Service API
+  description: |-
+    The Product Service API allows you to work with our shop content, get all available products and edit some specific ones.
+
+    
+    Some useful links:
+    - [The Shop FE repository](https://github.com/AleksandraChehovich/react-redux-cloudfront)
+    - [The Shop BE repository](https://github.com/AleksandraChehovich/be-aws-shop)
+  
+servers:
+  - url: https://wlwoqk18ye.execute-api.eu-west-1.amazonaws.com/products
+tags:
+  - name: Shop
+    description: Everything you can buy
+    externalDocs:
+      description: Find out more
+      url: http://first-rs-bucket.s3-website-eu-west-1.amazonaws.com/
+  - name: Edit products
+    description: Access to Product editor
+    externalDocs:
+      description: Find out more about our store
+      url: http://first-rs-bucket.s3-website-eu-west-1.amazonaws.com/admin/product-form/7567ec4b-b10c-48c5-9345-fc73c48a80aa
+paths:
+  /products:
+    get:
+      tags:
+        - products
+      summary: Get all available products
+      description: All available products will be displayed on the application's main page
+      operationId: getProductsList
+      parameters:
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'          
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid status value
+  /products/{productId}:
+    get:
+      tags:
+        - products
+      summary: Find a product by ID
+      description: Returns a single product
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Product not found
+
+
+components:
+  schemas:
+    Product:
+      type: Object
+      properties:
+        id:
+          type: string
+          description: 'Unique product id'
+          example: '7567ec4b-b10c-48c5-9345-fc73c48a80a3'
+        description:
+          type: string
+          description: 'Some short description'
+          example: 'Product description'
+        price:
+          type: integer
+          format: int64
+          example: 10
+        title:
+          type: string
+          example: 'Product title'
+        count: 
+          type: integer
+          description: 'Count of available products'
+          format: int64
+          example: 10
+      xml:
+        name: product
+    Products:
+      type: Array
+        items:
+          $ref: '#/components/schemas/Product'
+      xml:
+        name: product
