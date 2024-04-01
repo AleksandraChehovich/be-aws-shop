@@ -1,19 +1,26 @@
 {
     "name": "be-aws-shop",
     "version": "1.0.0",
+    "type": "module",
     "description": "Backend for E-Commerce application (Shop) created with NodeJS, AWS Cloud and Serverless architecture and Serverless framework",
     "main": "index.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "fill tables": "node fill_tables.js"
     },
     "repository": {
-      "type": "git",
-      "url": "git+https://github.com/AleksandraChehovich/be-aws-shop.git"
+        "type": "git",
+        "url": "git+https://github.com/AleksandraChehovich/be-aws-shop.git"
     },
     "author": "Sasha Che",
     "license": "ISC",
     "bugs": {
-      "url": "https://github.com/AleksandraChehovich/be-aws-shop/issues"
+        "url": "https://github.com/AleksandraChehovich/be-aws-shop/issues"
     },
-    "homepage": "https://github.com/AleksandraChehovich/be-aws-shops#readme"
-  }
+    "homepage": "https://github.com/AleksandraChehovich/be-aws-shops#readme",
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.540.0",
+        "aws-sdk": "^2.1589.0",
+        "uuid": "^9.0.1"
+    }
+}

@@ -10,19 +10,34 @@ provider:
   runtime: nodejs18.x
   stage: dev
   region: eu-west-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Scan
+            - dynamodb:PutItem
+            - dynamodb:Query
+            - dynamodb:TransactWriteItems
+          Resource:
+            - "arn:aws:dynamodb:eu-west-1:992382660389:table/${self:custom.productsTable}"
+            - "arn:aws:dynamodb:eu-west-1:992382660389:table/${self:custom.stockTable}"
 
 functions:
   getProductsList:
     handler: handlers/getProductsList.handler
     events:
-      - httpApi:
+      - http:
           method: get
           path: /products
           cors: true
+    environment:
+      PRODUCTS_TABLE: ${self:custom.productsTable}
+      STOCK_TABLE: ${self:custom.stockTable}
   getProductById:
     handler: handlers/getProductById.handler
     events:
-      - httpApi:
+      - http:
           method: get
           path: /products/{productId}
           cors: true
@@ -30,3 +45,61 @@ functions:
             parameters:
               paths:
                 productId: true
+    environment:
+      PRODUCTS_TABLE: ${self:custom.productsTable}
+      STOCK_TABLE: ${self:custom.stockTable}
+  createProduct:
+    handler: handlers/createProduct.handler
+    events:
+      - http:
+          method: put
+          path: /product
+          cors: true
+    environment:
+      PRODUCTS_TABLE: ${self:custom.productsTable}
+      STOCK_TABLE: ${self:custom.stockTable}
+  updateProduct:
+    handler: handlers/createProduct.handler
+    events:
+      - http:
+          method: put
+          path: /products/{productId}
+          cors: true
+    environment:
+      PRODUCTS_TABLE: ${self:custom.productsTable}
+      STOCK_TABLE: ${self:custom.stockTable}
+
+
+custom:
+  productsTable: "PRODUCTS_TABLE"
+  stockTable: "STOCK_TABLE"
+
+resources:
+  Resources:
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.productsTable}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    stockTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.stockTable}
+        AttributeDefinitions:
+          - AttributeName: product_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: product_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    
