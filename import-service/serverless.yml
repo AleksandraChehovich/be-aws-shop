@@ -1,0 +1,50 @@
+service: import-service
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: eu-west-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - 's3:ListBucket'
+            - 's3:GetObject'
+            - 's3:PutObject'
+            - 's3:DeleteObject'
+          Resource:
+            - "arn:aws:s3:::import-serv-bucket"
+            - "arn:aws:s3:::import-serv-bucket/*"
+
+functions:
+  importProductsFile:
+    handler: handlers/importProductsFile.handler
+    events:
+      - http:
+          method: get
+          path: /import
+          cors: true
+    environment:
+      BUCKET_NAME: ${self:custom.bucketName}
+  importFileParser:
+    handler: handlers/importFileParser.handler
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+          existing: true
+    environment:
+      BUCKET_NAME: ${self:custom.bucketName}
+
+custom:
+  bucketName: import-serv-bucket
+  
