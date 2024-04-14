@@ -5,7 +5,6 @@ export const handler = async (event, context, callback) => {
   let status = 200;
   console.log("event: ", event);
   const { name } = event.queryStringParameters;
-  console.log("event: ", event);
 
   if (!name) return;
   const Key = `uploaded/${name}`;

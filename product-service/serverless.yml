@@ -22,6 +22,18 @@ provider:
           Resource:
             - "arn:aws:dynamodb:eu-west-1:992382660389:table/${self:custom.productsTable}"
             - "arn:aws:dynamodb:eu-west-1:992382660389:table/${self:custom.stockTable}"
+        - Effect: Allow
+          Action:
+            - 'sqs:*'
+          Resource:
+            # - "arn:aws:sqs:eu-west-1:992382660389:catalogItemsQueue"
+            - Fn::GetAtt: [ SQSQueue, Arn ]
+        - Effect: Allow
+          Action:
+            - 'sns:*'
+          Resource:
+            # - Ref: SNSTopic
+            - "arn:aws:sns:eu-west-1:992382660389:createProductTopic"
 
 functions:
   getProductsList:
@@ -68,14 +80,55 @@ functions:
     environment:
       PRODUCTS_TABLE: ${self:custom.productsTable}
       STOCK_TABLE: ${self:custom.stockTable}
+  catalogBatchProcess:
+    handler: handlers/catalogBatchProcess.handler
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - SQSQueue
+              - Arn
+    environment:
+      SQS_Q: !Ref SQSQueue
+      SNS_TOPIC: ${self:custom.SNSTopic}
+      PRODUCTS_TABLE: ${self:custom.productsTable}
+      STOCK_TABLE: ${self:custom.stockTable}
 
 
 custom:
   productsTable: "PRODUCTS_TABLE"
   stockTable: "STOCK_TABLE"
+  SQSQueue: "catalogItemsQueue"
+  SNSTopic: "createProductTopic"
 
 resources:
   Resources:
+    SNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.SNSTopic}
+    SNSSubscription1:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: fake.sanunia22@gmail.com
+        Protocol: email
+        TopicArn: !Ref SNSTopic
+        FilterPolicyScope: 'MessageBody'
+        FilterPolicy:
+          title:
+            - "ProductOne"
+    SNSSubscription2:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: chakhovichaliaksandra@gmail.com
+        Protocol: email
+        TopicArn: !Ref SNSTopic
+
+    SQSQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.SQSQueue}
     ProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:

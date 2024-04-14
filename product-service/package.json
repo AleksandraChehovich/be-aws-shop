@@ -26,6 +26,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.540.0",
     "aws-sdk": "^2.1589.0",
+    "aws-sdk-mock": "^5.9.0",
     "uuid": "^9.0.1"
   }
 }
