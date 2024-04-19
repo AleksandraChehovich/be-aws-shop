@@ -36,6 +36,11 @@ functions:
           method: get
           path: /import
           cors: true
+          authorizer:
+            name: tokenAuthorizer
+            arn: arn:aws:lambda:eu-west-1:992382660389:function:authorization-service-dev-basicAuthorizer
+            identitySource: method.request.header.Authorization
+            type: token
     environment:
       BUCKET_NAME: ${self:custom.bucketName}
   importFileParser:
@@ -52,4 +57,15 @@ functions:
 
 custom:
   bucketName: import-serv-bucket
-  
+
+resources:
+  Resources:
+    Unauthorized:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          "gatewayresponse.header.Access-Control-Allow-Origin": "'*'"
+          "gatewayresponse.header.Access-Control-Allow-Headers": "'*'"
+        ResponseType: "DEFAULT_4XX"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"  
